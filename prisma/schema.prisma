@@ -1,0 +1,22 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_PRISMA_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  title     String?
+  audioName String?
+  audioUrl  String?
+  rawText   String?
+  newsDate  String?
+  blocks    Json?
+  sentences Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
