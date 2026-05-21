@@ -739,22 +739,6 @@ export default function App() {
   const handleSeek = (e) => { const newTime = parseFloat(e.target.value); setCurrentTime(newTime); if (audioRef.current) audioRef.current.currentTime = newTime; };
   const formatTime = (s) => `${Math.floor(s/60).toString().padStart(2,'0')}:${Math.floor(s%60).toString().padStart(2,'0')}.${Math.floor((s%1)*10)}`;
   
-  const handleExportSRT = () => {
-    let srt = "";
-    let srtIdx = 1;
-    sentences.forEach(sent => {
-        if (!sent.chunks || sent.chunks.length === 0) return;
-        const start = sent.chunks[0].start;
-        const end = sent.chunks[sent.chunks.length - 1].end;
-        const pad = (n, s) => ('000'+n).slice(s*-1);
-        const fmt = (sec) => `${pad(Math.floor(sec/3600),2)}:${pad(Math.floor((sec%3600)/60),2)}:${pad(Math.floor(sec%60),2)},${pad(Math.floor((sec%1)*1000),3)}`;
-        srt += `${srtIdx++}\n${fmt(start)} --> ${fmt(end)}\n${sent.en}\n${sent.zh}\n\n`;
-    });
-    const blob = new Blob([srt], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = `${formData.title}.srt`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  };
 
   const wrapTextCanvas = (ctx, text, x, y, maxWidth, lineHeight) => {
       if (!text) return y;
