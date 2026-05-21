@@ -1634,6 +1634,7 @@ const startVideoExport = async () => {
         </div>
       )}
 
+
       {/* 词汇课研实验室 Modal */}
       {showVocabLab && (
         <div className="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
@@ -1709,4 +1710,5 @@ const startVideoExport = async () => {
       )}
       </>
   );
+}
 }
