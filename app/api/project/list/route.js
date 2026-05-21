@@ -1,11 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma'; // 👈 从 lib 导入单例
 
 export async function GET() {
   try {
-    // 把 blocks 和 sentences 也一起返回，让前端能解析出封面图！
     const projects = await prisma.project.findMany({
       orderBy: { updatedAt: 'desc' },
       select: { 
@@ -14,12 +11,13 @@ export async function GET() {
         audioName: true,
         newsDate: true, 
         updatedAt: true,
-        blocks: true,      // 👈 放行 blocks 数据！
-        sentences: true    // 👈 放行 sentences 数据！
+        blocks: true,      
+        sentences: true    
       }
     });
     return NextResponse.json({ success: true, projects });
   } catch (error) {
+    console.error("Database Error:", error); // 这行很重要，在终端看报错！
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

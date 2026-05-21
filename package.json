@@ -4,32 +4,30 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm install && next build",
+    "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@edgeone/pages-blob": "^0.0.7",
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
     "@prisma/client": "^6.19.3",
     "@vercel/blob": "^2.3.3",
-    "cos-nodejs-sdk-v5": "^2.15.4",
     "lucide-react": "^1.14.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tencentcloud-sdk-nodejs-asr": "^4.1.205"
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "eslint": "^9.0.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "prisma": "^6.19.3",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.0.0"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

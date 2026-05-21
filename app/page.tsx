@@ -744,7 +744,7 @@ export default function App() {
           ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y); ctx.closePath();
       }
   };
-  
+
   const startVideoExport = async () => {
       if (!formData.audioUrl || sentences.length === 0) return alert("请先完成剧本构建。");
       setIsPlaying(false);
@@ -1366,12 +1366,6 @@ export default function App() {
                 }} className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center shadow-sm transition-colors">
                  <LayoutDashboard size={16} className="mr-2" /> 主控台
               </button>
-              <button 
-  onClick={handleExportSRT} 
-  className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition-colors"
->
-  <Download size={14} className="mr-1.5" /> 导 SRT
-</button>
               {/* 🎬 补回来的导出视频按钮 */}
               <button 
                 onClick={startVideoExport} 
