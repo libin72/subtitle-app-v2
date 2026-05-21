@@ -230,6 +230,7 @@ export default function App() {
     URL.revokeObjectURL(url);
   }; 
 
+  
   const fetchProjects = async () => {
     setIsLoadingList(true);
     try {
