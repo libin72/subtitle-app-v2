@@ -787,8 +787,12 @@ export default function App() {
       }
   };
 
-  const startVideoExport = async () => {
+const startVideoExport = async () => {
       if (!formData.audioUrl || sentences.length === 0) return alert("请先完成剧本构建。");
+      
+      // ⚠️ 极其重要的防黑屏提示
+      alert("⚠️ 重要提示：\n开始导出后，请【绝对不要】切换浏览器标签页或最小化窗口！\n否则浏览器会自动冻结画面渲染，导致视频后半段黑屏。");
+      
       setIsPlaying(false);
       setIsExportingVideo(true);
       setExportProgress(0);
@@ -800,14 +804,19 @@ export default function App() {
       let recordedChunks = [];
       let animationId;
       let mediaRecorder;
+      let audioCtx; // 提升作用域以便释放
 
       try {
-          if (!canvas.captureStream) throw new Error("当前 Safari 版本不支持流捕获，建议使用 Chrome 导出视频。");
+          if (!canvas.captureStream) throw new Error("当前浏览器不支持流捕获，建议使用 Chrome 导出视频。");
           const canvasStream = canvas.captureStream(30);
           
           const audio = new Audio(formData.audioUrl);
           audio.crossOrigin = "anonymous";
-          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          
+          // 💡 修复无声音：必须强行唤醒音频上下文
+          await audioCtx.resume(); 
+
           const dest = audioCtx.createMediaStreamDestination();
           const source = audioCtx.createMediaElementSource(audio);
           
@@ -815,27 +824,43 @@ export default function App() {
           source.connect(audioCtx.destination); 
           
           const combinedStream = new MediaStream([...canvasStream.getVideoTracks(), ...dest.stream.getAudioTracks()]);
-          const supportedMimeTypes = ['video/mp4', 'video/webm;codecs=vp9', 'video/webm', ''];
+          
+          // 💡 修复 QuickTime 兼容性：尽可能优先尝试能兼容 Mac 的编码器
+          const supportedMimeTypes = [
+              'video/mp4',               // Safari 首选，完美兼容 QuickTime
+              'video/webm;codecs=h264',  // Chrome 里的 H264，兼容性尚可
+              'video/webm;codecs=vp9',
+              'video/webm'
+          ];
           let options = {};
           for (let type of supportedMimeTypes) {
-              if (type === '' || MediaRecorder.isTypeSupported(type)) {
-                  if (type !== '') options.mimeType = type; break;
+              if (MediaRecorder.isTypeSupported(type)) {
+                  options.mimeType = type; 
+                  break;
               }
           }
 
           mediaRecorder = new MediaRecorder(combinedStream, options);
           mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+          
           mediaRecorder.onstop = () => {
-              const ext = (options.mimeType || '').includes('webm') ? 'webm' : 'mp4';
+              // 智能判断后缀名
+              const ext = (options.mimeType || '').includes('mp4') ? 'mp4' : 'webm';
               const blob = new Blob(recordedChunks, { type: options.mimeType || 'video/mp4' });
               const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-              a.download = `KizEnglish_Export.${ext}`; a.click();
-              setIsExportingVideo(false); cancelAnimationFrame(animationId); audioCtx.close();
+              a.download = `KizEnglish_Export.${ext}`; 
+              a.click();
+              
+              // 彻底清理战场，防止内存泄漏
+              setIsExportingVideo(false); 
+              cancelAnimationFrame(animationId); 
+              if(audioCtx && audioCtx.state !== 'closed') audioCtx.close();
+              URL.revokeObjectURL(a.href);
           };
 
           const drawFrame = () => {
               const time = audio.currentTime;
-              setExportProgress(time / (formData.audioDuration || audio.duration));
+              setExportProgress(time / (formData.audioDuration || audio.duration || 1));
 
               ctx.fillStyle = '#000000'; ctx.fillRect(0, 0, 1080, 1920);
               
@@ -930,17 +955,24 @@ export default function App() {
           };
 
           mediaRecorder.start();
-          audio.play().catch(() => alert("由于安全机制，音频导出需要您在此页面任意点击后再试。"));
+          audio.play().catch(() => {
+             alert("因浏览器安全限制，导出视频前需要您在此页面任意处点击一下。请重试！");
+             setIsExportingVideo(false);
+          });
           drawFrame();
 
           audio.onended = () => {
-              mediaRecorder.stop();
+              if (mediaRecorder.state !== "inactive") {
+                 mediaRecorder.stop();
+              }
           };
 
       } catch (e) {
           console.error(e);
           alert(`视频导出初始化失败: ${e.message}`);
-          setIsExportingVideo(false); cancelAnimationFrame(animationId);
+          setIsExportingVideo(false); 
+          cancelAnimationFrame(animationId);
+          if(audioCtx && audioCtx.state !== 'closed') audioCtx.close();
       }
   };
 
@@ -1677,5 +1709,4 @@ export default function App() {
       )}
       </>
   );
-}
 }
