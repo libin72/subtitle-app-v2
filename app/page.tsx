@@ -1430,22 +1430,22 @@ export default function App() {
               <button onClick={handleSaveProject} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition-colors">
                 <Save size={14} className="mr-1.5" /> 保存并发布
               </button>
-           </div>
-        </div>
-
-<button
+<button 
   onClick={(e) => {
-    e.stopPropagation(); // 防止点击按钮时触发整个卡片的点击事件
-    handleExportSRT(p);  // 👈 注意这里改成了 p
-  }}
-  className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors border border-blue-200 mt-2"
+    e.stopPropagation(); 
+    // 💡 关键修改：用当前编辑器的状态数据替换 p
+    handleExportSRT({ title: formData.title, sentences: sentences }); 
+  }} 
+  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg flex items-center transition-colors"
   title="导出字幕文件"
 >
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
   </svg>
   导出 SRT
 </button>
+           </div>
+        </div>
 
         {/* 剧本编辑器流 */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
