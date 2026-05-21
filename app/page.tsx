@@ -180,9 +180,21 @@ export default function App() {
       return;
     }
 
-    // 2. 时间格式化工具 (将秒数转为 SRT 要求的 HH:MM:SS,mmm 格式)
+   // 导出 SRT 功能函数 (升级版：智能识别字段)
+  const handleExportSRT = (data: any) => {
+    const project = data;
+    if (!project.sentences || project.sentences.length === 0) {
+      alert("这篇内容暂时没有句子数据，无法导出喔！");
+      return;
+    }
+
+    // 💡 打印一下第一句话到底长什么样，方便我们在 F12 控制台查错
+    console.log("【导出诊断】第一句话的真实数据：", project.sentences[0]);
+
     const formatTime = (timeInSeconds: number) => {
-      const date = new Date(timeInSeconds * 1000);
+      // 确保传进来的是数字
+      const time = Number(timeInSeconds) || 0;
+      const date = new Date(time * 1000);
       const hh = String(date.getUTCHours()).padStart(2, '0');
       const mm = String(date.getUTCMinutes()).padStart(2, '0');
       const ss = String(date.getUTCSeconds()).padStart(2, '0');
@@ -190,18 +202,23 @@ export default function App() {
       return `${hh}:${mm}:${ss},${ms}`;
     };
 
-    // 3. 拼接 SRT 文本
     let srtContent = "";
     project.sentences.forEach((sentence: any, index: number) => {
-      const startTime = formatTime(sentence.startTime || 0);
-      const endTime = formatTime(sentence.endTime || 0);
+      // 💡 智能识别你的时间字段名：可能是 start 也有可能是 startTime
+      const start = sentence.startTime !== undefined ? sentence.startTime : sentence.start || 0;
+      const end = sentence.endTime !== undefined ? sentence.endTime : sentence.end || 0;
+      
+      // 💡 智能识别文本：可能是 text, en, english, 或者 content
+      const text = sentence.text || sentence.en || sentence.english || sentence.content || "字幕内容为空";
+
+      const formattedStart = formatTime(start);
+      const formattedEnd = formatTime(end);
       
       srtContent += `${index + 1}\n`;
-      srtContent += `${startTime} --> ${endTime}\n`;
-      srtContent += `${sentence.text}\n\n`; // 注意这里有两个换行
+      srtContent += `${formattedStart} --> ${formattedEnd}\n`;
+      srtContent += `${text}\n\n`;
     });
 
-    // 4. 触发浏览器下载
     const blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -210,8 +227,9 @@ export default function App() {
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url); // 释放内存
-  };
+    URL.revokeObjectURL(url);
+  }; 
+
   const fetchProjects = async () => {
     setIsLoadingList(true);
     try {
