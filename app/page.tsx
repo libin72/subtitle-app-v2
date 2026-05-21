@@ -172,14 +172,6 @@ export default function App() {
     });
   }, [blocks]);
 
-// 导出 SRT 功能函数
-  const handleExportSRT = (project: any) => {
-    // 1. 检查有没有句子数据
-    if (!project.sentences || project.sentences.length === 0) {
-      alert("这篇内容暂时没有句子时间轴数据，无法导出 SRT 喔！");
-      return;
-    }
-
    // 导出 SRT 功能函数 (升级版：智能识别字段)
   const handleExportSRT = (data: any) => {
     const project = data;
@@ -1710,5 +1702,4 @@ const startVideoExport = async () => {
       )}
       </>
   );
-}
 }
