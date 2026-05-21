@@ -172,7 +172,46 @@ export default function App() {
     });
   }, [blocks]);
 
+// 导出 SRT 功能函数
+  const handleExportSRT = (project: any) => {
+    // 1. 检查有没有句子数据
+    if (!project.sentences || project.sentences.length === 0) {
+      alert("这篇内容暂时没有句子时间轴数据，无法导出 SRT 喔！");
+      return;
+    }
 
+    // 2. 时间格式化工具 (将秒数转为 SRT 要求的 HH:MM:SS,mmm 格式)
+    const formatTime = (timeInSeconds: number) => {
+      const date = new Date(timeInSeconds * 1000);
+      const hh = String(date.getUTCHours()).padStart(2, '0');
+      const mm = String(date.getUTCMinutes()).padStart(2, '0');
+      const ss = String(date.getUTCSeconds()).padStart(2, '0');
+      const ms = String(date.getUTCMilliseconds()).padStart(3, '0');
+      return `${hh}:${mm}:${ss},${ms}`;
+    };
+
+    // 3. 拼接 SRT 文本
+    let srtContent = "";
+    project.sentences.forEach((sentence: any, index: number) => {
+      const startTime = formatTime(sentence.startTime || 0);
+      const endTime = formatTime(sentence.endTime || 0);
+      
+      srtContent += `${index + 1}\n`;
+      srtContent += `${startTime} --> ${endTime}\n`;
+      srtContent += `${sentence.text}\n\n`; // 注意这里有两个换行
+    });
+
+    // 4. 触发浏览器下载
+    const blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${project.title || "kizenglish-subtitle"}.srt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // 释放内存
+  };
   const fetchProjects = async () => {
     setIsLoadingList(true);
     try {
@@ -1393,6 +1432,20 @@ export default function App() {
               </button>
            </div>
         </div>
+
+<button
+  onClick={(e) => {
+    e.stopPropagation(); // 防止点击按钮时触发整个卡片的点击事件
+    handleExportSRT(p);  // 👈 注意这里改成了 p
+  }}
+  className="inline-flex items-center gap-1 px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors border border-blue-200 mt-2"
+  title="导出字幕文件"
+>
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+  </svg>
+  导出 SRT
+</button>
 
         {/* 剧本编辑器流 */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
