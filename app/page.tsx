@@ -1034,8 +1034,15 @@ const renderPortalDetail = () => (
             <button onClick={() => { setPortalView('home'); setIsPlaying(false); audioRef.current?.pause(); }} className="absolute top-6 left-6 text-white/60 hover:text-white text-sm font-bold flex items-center transition-colors z-50 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 <ChevronLeft size={16} className="mr-1" /> 返回主页
             </button>
-            <div className="w-[393px] h-[852px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
-                <div className="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-2xl w-1/2 mx-auto z-50"></div>
+            {/* 📱 升级1：边框减负 (border-[8px])，边角微调 (rounded-[2.5rem]) 释放屏幕空间 */}
+            <div className="w-[393px] h-[852px] bg-black rounded-[2.5rem] border-[8px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
+                {/* 💊 升级2：iPhone 17 Pro 灵动岛 (取代旧版刘海) */}
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 h-7 w-[110px] bg-black rounded-full z-50 ring-1 ring-white/10 flex items-center justify-between px-2.5 shadow-xl">
+                    <div className="w-2.5 h-2.5 rounded-full bg-zinc-800/80"></div>
+                    <div className="w-3.5 h-3.5 rounded-full bg-zinc-900 shadow-inner flex items-center justify-center">
+                        <div className="w-1 h-1 rounded-full bg-blue-500/30"></div>
+                    </div>
+                </div>
                 {renderPhoneScreen()}
             </div>
         </div>
@@ -1383,8 +1390,15 @@ const renderPortalDetail = () => (
          <div className="absolute top-6 left-8 text-white/50 text-xs font-bold tracking-widest flex items-center">
             <Eye size={14} className="mr-2" /> LIVE PREVIEW (Creator Studio)
          </div>
-         <div className="w-[393px] h-[852px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
-            <div className="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-2xl w-1/2 mx-auto z-50"></div>
+         {/* 📱 升级1：边框减负，释放实际显示面积 */}
+         <div className="w-[393px] h-[852px] bg-black rounded-[2.5rem] border-[8px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
+            {/* 💊 升级2：带微光镜头反光的灵动岛 */}
+            <div className="absolute top-2.5 left-1/2 -translate-x-1/2 h-7 w-[110px] bg-black rounded-full z-50 ring-1 ring-white/10 flex items-center justify-between px-2.5 shadow-xl">
+                <div className="w-2.5 h-2.5 rounded-full bg-zinc-800/80"></div>
+                <div className="w-3.5 h-3.5 rounded-full bg-zinc-900 shadow-inner flex items-center justify-center">
+                    <div className="w-1 h-1 rounded-full bg-blue-500/30"></div>
+                </div>
+            </div>
             {renderPhoneScreen()}
          </div>
       </div>
