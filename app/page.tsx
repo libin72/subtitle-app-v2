@@ -172,7 +172,7 @@ export default function App() {
     });
   }, [blocks]);
 
-   // 导出 SRT 功能函数 (升级版：智能识别字段)
+  // 导出 SRT 功能函数 (双语精确时间轴终极版)
   const handleExportSRT = (data: any) => {
     const project = data;
     if (!project.sentences || project.sentences.length === 0) {
@@ -180,11 +180,7 @@ export default function App() {
       return;
     }
 
-    // 💡 打印一下第一句话到底长什么样，方便我们在 F12 控制台查错
-    console.log("【导出诊断】第一句话的真实数据：", project.sentences[0]);
-
     const formatTime = (timeInSeconds: number) => {
-      // 确保传进来的是数字
       const time = Number(timeInSeconds) || 0;
       const date = new Date(time * 1000);
       const hh = String(date.getUTCHours()).padStart(2, '0');
@@ -196,31 +192,48 @@ export default function App() {
 
     let srtContent = "";
     project.sentences.forEach((sentence: any, index: number) => {
-      // 💡 智能识别你的时间字段名：可能是 start 也有可能是 startTime
-      const start = sentence.startTime !== undefined ? sentence.startTime : sentence.start || 0;
-      const end = sentence.endTime !== undefined ? sentence.endTime : sentence.end || 0;
+      // 1. 深入 chunks 提取真实的起止时间（精准到毫秒）
+      let start = 0;
+      let end = 0;
+      if (sentence.chunks && sentence.chunks.length > 0) {
+          start = sentence.chunks[0].start;
+          end = sentence.chunks[sentence.chunks.length - 1].end;
+      } else {
+          start = sentence.startTime || sentence.start || 0;
+          end = sentence.endTime || sentence.end || 0;
+      }
       
-      // 💡 智能识别文本：可能是 text, en, english, 或者 content
-      const text = sentence.text || sentence.en || sentence.english || sentence.content || "字幕内容为空";
+      // 2. 提取中文和英文
+      const enText = sentence.en || sentence.text || sentence.english || sentence.content || "";
+      const zhText = sentence.zh || "";
+
+      // 3. 智能拼接双语（中文在上，英文在下）
+      let displayText = "";
+      if (zhText && enText) {
+          displayText = `${zhText}\n${enText}`;
+      } else {
+          displayText = zhText || enText || "（字幕内容为空）";
+      }
 
       const formattedStart = formatTime(start);
       const formattedEnd = formatTime(end);
       
       srtContent += `${index + 1}\n`;
       srtContent += `${formattedStart} --> ${formattedEnd}\n`;
-      srtContent += `${text}\n\n`;
+      srtContent += `${displayText}\n\n`;
     });
 
+    // 触发下载
     const blob = new Blob([srtContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${project.title || "kizenglish-subtitle"}.srt`;
+    a.download = `${project.title || "KidNuz-Bilingual"}.srt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  }; 
+  };
 
   
   const fetchProjects = async () => {
