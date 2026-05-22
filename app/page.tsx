@@ -1027,14 +1027,14 @@ const startVideoExport = async () => {
     </div>
   );
 
-  const renderPortalDetail = () => (
+const renderPortalDetail = () => (
     <div className="flex h-screen w-screen bg-white font-sans text-gray-800 overflow-hidden">
         {/* 左侧：手机播放器区 */}
-        <div className="w-[450px] h-full p-8 flex flex-col items-center justify-center shrink-0 border-r border-gray-100 bg-slate-900 relative">
+        <div className="w-[500px] h-full p-8 flex flex-col items-center justify-center shrink-0 border-r border-gray-100 bg-slate-900 relative">
             <button onClick={() => { setPortalView('home'); setIsPlaying(false); audioRef.current?.pause(); }} className="absolute top-6 left-6 text-white/60 hover:text-white text-sm font-bold flex items-center transition-colors z-50 bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-md">
                 <ChevronLeft size={16} className="mr-1" /> 返回主页
             </button>
-            <div className="w-[375px] h-[812px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
+            <div className="w-[393px] h-[852px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
                 <div className="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-2xl w-1/2 mx-auto z-50"></div>
                 {renderPhoneScreen()}
             </div>
@@ -1379,11 +1379,11 @@ const startVideoExport = async () => {
   // ==========================================
   const renderStudioWorkspace = () => (
     <div className="flex h-screen w-screen bg-gray-900 text-gray-800 font-sans overflow-hidden relative">
-      <div className="w-[450px] h-full p-8 flex flex-col items-center justify-center shrink-0 border-r border-white/10 bg-black/40 relative">
+      <div className="w-[500px] h-full p-8 flex flex-col items-center justify-center shrink-0 border-r border-white/10 bg-black/40 relative">
          <div className="absolute top-6 left-8 text-white/50 text-xs font-bold tracking-widest flex items-center">
             <Eye size={14} className="mr-2" /> LIVE PREVIEW (Creator Studio)
          </div>
-         <div className="w-[375px] h-[812px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
+         <div className="w-[393px] h-[852px] bg-black rounded-[3rem] border-[14px] border-gray-800 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden flex flex-col ring-1 ring-white/10">
             <div className="absolute top-0 inset-x-0 h-6 bg-gray-800 rounded-b-2xl w-1/2 mx-auto z-50"></div>
             {renderPhoneScreen()}
          </div>
