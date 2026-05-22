@@ -1404,87 +1404,97 @@ const renderPortalDetail = () => (
       </div>
 
       <div className="flex-1 flex flex-col h-full bg-gray-50 relative overflow-hidden">
-        {/* 顶部工具栏 */}
-        <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center space-x-4 shrink-0 shadow-sm z-10">
-           <button onClick={() => {
-                // 💡 直接在这里写死播放逻辑，不再依赖外面的 togglePlay 函数
-                if (!audioRef.current) return;
-                
-                if (isPlaying) {
-                    audioRef.current.pause();
-                    setIsPlaying(false);
-                } else {
-                    // 强行启动播放，并加上防报错保护罩
-                    audioRef.current.play().then(() => {
-                        setIsPlaying(true);
-                    }).catch(error => {
-                        console.warn("播放失败，可能是音频未就绪:", error);
-                        setIsPlaying(false);
-                    });
-                }
-            }} className="w-10 h-10 rounded-full bg-blue-500 flex justify-center items-center hover:bg-blue-600 text-white shrink-0 shadow">
-               {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-1" />}
-            </button>
-           <div className="flex-1 space-y-1">
-             <input type="range" min="0" max={formData.audioDuration || 1} step="0.01" value={currentTime} onChange={handleSeek} className="w-full h-1.5 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-500" />
-             <div className="flex justify-between text-[10px] text-gray-500 font-mono font-medium"><span>{formatTime(currentTime)}</span><span>{formData.audioDuration ? formatTime(formData.audioDuration) : '00:00.0'}</span></div>
+        {/* 顶部工具栏：全新双层设计 */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4 flex flex-col gap-4 shrink-0 shadow-sm z-10">
+           {/* 顶层：播放控制与进度栏 */}
+           <div className="flex items-center space-x-4">
+               <button onClick={() => {
+                   if (!audioRef.current) return;
+                   if (isPlaying) {
+                       audioRef.current.pause();
+                       setIsPlaying(false);
+                   } else {
+                       audioRef.current.play().then(() => {
+                           setIsPlaying(true);
+                       }).catch(error => {
+                           console.warn("播放失败，可能是音频未就绪:", error);
+                           setIsPlaying(false);
+                       });
+                   }
+               }} className="w-11 h-11 rounded-full bg-blue-500 flex justify-center items-center hover:bg-blue-600 text-white shrink-0 shadow-md transition-transform active:scale-95">
+                  {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
+               </button>
+               <div className="flex-1 space-y-1.5">
+                 <input type="range" min="0" max={formData.audioDuration || 1} step="0.01" value={currentTime} onChange={handleSeek} className="w-full h-2 bg-gray-200 rounded-full appearance-none cursor-pointer accent-blue-500 transition-all" />
+                 <div className="flex justify-between text-[11px] text-gray-500 font-mono font-medium px-1"><span>{formatTime(currentTime)}</span><span>{formData.audioDuration ? formatTime(formData.audioDuration) : '00:00.0'}</span></div>
+               </div>
            </div>
            
-           <div className="flex items-center space-x-2">
-              <button onClick={() => setAppMode('portal')} className="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center shadow-sm transition-colors">
-                 <Home size={14} className="mr-1.5"/> 退出后台
+           {/* 底层：6个统一大小与风格的网格按钮 */}
+           <div className="grid grid-cols-6 gap-3">
+              {/* 1. 退出后台 */}
+              <button onClick={() => setAppMode('portal')} className="flex items-center justify-center h-10 bg-purple-50 text-purple-600 hover:bg-purple-100 hover:text-purple-700 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95">
+                 <Home size={16} className="mr-1.5"/> 退出后台
               </button>
-              <label className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition-colors cursor-pointer">
-                <FileAudio size={14} className="mr-1.5" /> 关联音频
-                <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (file) { setFormData(prev => ({...prev, audioFile: file, audioName: file.name, audioUrl: URL.createObjectURL(file)})); } }} />
-              </label>
+              
+              {/* 2. 主控台 */}
               <button onClick={() => { 
                   if (audioRef.current) audioRef.current.pause();
                   setIsPlaying(false);
                   setStudioView('dashboard'); 
                   fetchProjects(); 
-                }} className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl text-sm font-bold flex items-center shadow-sm transition-colors">
-                 <LayoutDashboard size={16} className="mr-2" /> 主控台
+                }} className="flex items-center justify-center h-10 bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95">
+                 <LayoutDashboard size={16} className="mr-1.5" /> 主控台
               </button>
-              {/* 🎬 补回来的导出视频按钮 */}
+
+              {/* 3. 关联音频 */}
+              <label className="flex items-center justify-center h-10 bg-yellow-500 text-white hover:bg-yellow-600 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95 cursor-pointer">
+                <FileAudio size={16} className="mr-1.5" /> 关联音频
+                <input type="file" accept="audio/*" className="hidden" onChange={(e) => { const file = e.target.files[0]; if (file) { setFormData(prev => ({...prev, audioFile: file, audioName: file.name, audioUrl: URL.createObjectURL(file)})); } }} />
+              </label>
+
+              {/* 4. 导出 SRT */}
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation(); 
+                  handleExportSRT({ title: formData.title, sentences: sentences }); 
+                }} 
+                className="flex items-center justify-center h-10 bg-indigo-500 text-white hover:bg-indigo-600 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95"
+                title="导出字幕文件"
+              >
+                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                导出 SRT
+              </button>
+
+              {/* 5. 导出视频 */}
               <button 
                 onClick={startVideoExport} 
                 disabled={isExportingVideo}
-                className={`mr-2 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition-colors ${
+                className={`flex items-center justify-center h-10 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95 ${
                   isExportingVideo 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-green-600 hover:bg-green-700 text-white'
+                    ? 'bg-gray-400 text-white cursor-not-allowed hover:-translate-y-0 active:scale-100' 
+                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
                 }`}
               >
                 {isExportingVideo ? (
                   <>
-                    <Loader2 size={14} className="mr-1.5 animate-spin" />
-                    正在合成...
+                    <Loader2 size={16} className="mr-1.5 animate-spin" />
+                    正在合成
                   </>
                 ) : (
                   <>
-                    <Video size={14} className="mr-1.5" />
+                    <Video size={16} className="mr-1.5" />
                     导出视频
                   </>
                 )}
               </button>
-              <button onClick={handleSaveProject} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition-colors">
-                <Save size={14} className="mr-1.5" /> 保存并发布
+
+              {/* 6. 保存并发布 */}
+              <button onClick={handleSaveProject} className="flex items-center justify-center h-10 bg-blue-600 text-white hover:bg-blue-700 rounded-xl text-[13px] font-bold shadow-sm transition-all hover:-translate-y-0.5 active:scale-95">
+                <Save size={16} className="mr-1.5" /> 保存发布
               </button>
-<button 
-  onClick={(e) => {
-    e.stopPropagation(); 
-    // 💡 关键修改：用当前编辑器的状态数据替换 p
-    handleExportSRT({ title: formData.title, sentences: sentences }); 
-  }} 
-  className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg flex items-center transition-colors"
-  title="导出字幕文件"
->
-  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-  </svg>
-  导出 SRT
-</button>
            </div>
         </div>
 
